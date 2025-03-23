@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}CyberSentry - AI-Powered Cybersecurity Platform{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center align-items-center">
+        <div class="col-md-8 text-center">
+            <h1 class="display-4 mb-4">
+                <i class="bi bi-shield-lock text-primary"></i> CyberSentry
+            </h1>
+            <p class="lead mb-5">An AI-powered cybersecurity platform with honeypot functionality, phishing detection, and comprehensive threat analysis.</p>
+            
+            <div class="d-grid gap-3 d-sm-flex justify-content-sm-center mb-5">
+                <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg px-4 me-sm-3">
+                    <i class="bi bi-box-arrow-in-right"></i> Login
+                </a>
+                <a href="{{ url_for('register') }}" class="btn btn-outline-secondary btn-lg px-4">
+                    <i class="bi bi-person-plus"></i> Register
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Features -->
+    <div class="row g-4 py-4">
+        <h2 class="text-center mb-4">Key Features</h2>
+        
+        <div class="col-md-4">
+            <div class="card dashboard-card h-100">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="bi bi-bugs fs-1 text-primary"></i>
+                    </div>
+                    <h3 class="card-title">Honeypot System</h3>
+                    <p class="card-text">Deploy decoy systems to detect, track, and analyze potential attackers exploring your network.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card dashboard-card h-100">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="bi bi-link-45deg fs-1 text-warning"></i>
+                    </div>
+                    <h3 class="card-title">Phishing Detection</h3>
+                    <p class="card-text">Utilize machine learning to identify and analyze potential phishing URLs with high accuracy.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card dashboard-card h-100">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="bi bi-graph-up fs-1 text-success"></i>
+                    </div>
+                    <h3 class="card-title">Threat Analysis</h3>
+                    <p class="card-text">Comprehensive visualization and analysis of attack patterns and security incidents.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card dashboard-card h-100">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="bi bi-search fs-1 text-info"></i>
+                    </div>
+                    <h3 class="card-title">OSINT Collection</h3>
+                    <p class="card-text">Gather and analyze open-source intelligence data to enhance your security posture.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card dashboard-card h-100">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="bi bi-camera-video fs-1 text-danger"></i>
+                    </div>
+                    <h3 class="card-title">Deepfake Detection</h3>
+                    <p class="card-text">Identify potentially manipulated media using advanced AI analysis techniques.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card dashboard-card h-100">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="bi bi-shield-check fs-1 text-secondary"></i>
+                    </div>
+                    <h3 class="card-title">Data Integrity</h3>
+                    <p class="card-text">Ensure the integrity of your security data with SHA-256 verification and auditing.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Call to Action -->
+    <div class="row mt-5">
+        <div class="col-12 text-center">
+            <div class="card dashboard-card bg-dark p-4">
+                <div class="card-body">
+                    <h2 class="mb-4">Ready to enhance your cybersecurity posture?</h2>
+                    <p class="lead mb-4">Create an account now to start securing your digital assets with our advanced AI-powered tools.</p>
+                    <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-shield-plus"></i> Get Started
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

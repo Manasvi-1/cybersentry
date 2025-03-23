@@ -1,0 +1,340 @@
+{% extends 'base.html' %}
+
+{% block title %}OSINT Details - CyberSentry{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1><i class="bi bi-search"></i> OSINT Details</h1>
+        <p class="text-muted">
+            Detailed OSINT information for <code>{{ osint_data.target }}</code>
+            <span class="badge bg-secondary">{{ osint_data.data_type }}</span>
+        </p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card dashboard-card bg-dark">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-info-circle"></i> {{ osint_data.data_type|upper }} Information</h5>
+                <span class="badge bg-secondary">{{ osint_data.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+            </div>
+            <div class="card-body">
+                {% if osint_data.data_type == 'whois' %}
+                    {% set whois_data = data %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="osint-data-section">
+                                <h5 class="osint-data-title">Domain Information</h5>
+                                <p><strong>Domain:</strong> {{ whois_data.domain_name }}</p>
+                                <p><strong>Registrar:</strong> {{ whois_data.registrar }}</p>
+                                <p><strong>WHOIS Server:</strong> {{ whois_data.whois_server }}</p>
+                                <p><strong>Created:</strong> {{ whois_data.creation_date }}</p>
+                                <p><strong>Expires:</strong> {{ whois_data.expiration_date }}</p>
+                                <p><strong>Updated:</strong> {{ whois_data.updated_date }}</p>
+                                <p><strong>Status:</strong> {{ whois_data.status }}</p>
+                                <p><strong>DNSSEC:</strong> {{ whois_data.dnssec }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="osint-data-section">
+                                <h5 class="osint-data-title">Registrant</h5>
+                                <p><strong>Organization:</strong> {{ whois_data.registrant.organization }}</p>
+                                <p><strong>State:</strong> {{ whois_data.registrant.state }}</p>
+                                <p><strong>Country:</strong> {{ whois_data.registrant.country }}</p>
+                                <p><strong>Email:</strong> {{ whois_data.registrant.email }}</p>
+                            </div>
+                            <div class="osint-data-section">
+                                <h5 class="osint-data-title">Name Servers</h5>
+                                <ul class="list-group list-group-flush">
+                                    {% for ns in whois_data.name_servers %}
+                                    <li class="list-group-item bg-dark">{{ ns }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                
+                {% elif osint_data.data_type == 'dns' %}
+                    {% set dns_data = data %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="osint-data-section">
+                                <h5 class="osint-data-title">A Records</h5>
+                                <ul class="list-group list-group-flush">
+                                    {% for ip in dns_data.a_records %}
+                                    <li class="list-group-item bg-dark">{{ ip }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            <div class="osint-data-section">
+                                <h5 class="osint-data-title">NS Records</h5>
+                                <ul class="list-group list-group-flush">
+                                    {% for ns in dns_data.ns_records %}
+                                    <li class="list-group-item bg-dark">{{ ns }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="osint-data-section">
+                                <h5 class="osint-data-title">MX Records</h5>
+                                <ul class="list-group list-group-flush">
+                                    {% for mx in dns_data.mx_records %}
+                                    <li class="list-group-item bg-dark">{{ mx.preference }} - {{ mx.exchange }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            <div class="osint-data-section">
+                                <h5 class="osint-data-title">TXT Records</h5>
+                                <ul class="list-group list-group-flush">
+                                    {% for txt in dns_data.txt_records %}
+                                    <li class="list-group-item bg-dark">
+                                        <code class="small">{{ txt }}</code>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                
+                {% elif osint_data.data_type == 'geo' %}
+                    {% set geo_data = data %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="osint-data-section">
+                                <h5 class="osint-data-title">IP Information</h5>
+                                <p><strong>IP Address:</strong> {{ geo_data.ip }}</p>
+                                <p><strong>Country:</strong> {{ geo_data.country_name }} ({{ geo_data.country_code }})</p>
+                                <p><strong>Region:</strong> {{ geo_data.region_name }} ({{ geo_data.region_code }})</p>
+                                <p><strong>City:</strong> {{ geo_data.city }}</p>
+                                <p><strong>Zip Code:</strong> {{ geo_data.zip_code }}</p>
+                                <p><strong>Timezone:</strong> {{ geo_data.timezone }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="osint-data-section">
+                                <h5 class="osint-data-title">Network Information</h5>
+                                <p><strong>ISP:</strong> {{ geo_data.isp }}</p>
+                                <p><strong>Organization:</strong> {{ geo_data.organization }}</p>
+                                <p><strong>AS Number:</strong> {{ geo_data.as_number }}</p>
+                                <p><strong>Latitude:</strong> {{ geo_data.latitude }}</p>
+                                <p><strong>Longitude:</strong> {{ geo_data.longitude }}</p>
+                            </div>
+                        </div>
+                    </div>
+                
+                {% elif osint_data.data_type == 'email' %}
+                    {% set email_data = data %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="osint-data-section">
+                                <h5 class="osint-data-title">Email Information</h5>
+                                <p><strong>Email:</strong> {{ email_data.email }}</p>
+                                <p><strong>Domain:</strong> {{ email_data.domain }}</p>
+                                <p><strong>Format:</strong> {{ email_data.format }}</p>
+                                <p><strong>MX Records:</strong> <span class="badge {% if email_data.has_mx_records %}bg-success{% else %}bg-danger{% endif %}">{{ email_data.has_mx_records }}</span></p>
+                                <p><strong>Disposable:</strong> <span class="badge {% if email_data.disposable %}bg-warning{% else %}bg-success{% endif %}">{{ email_data.disposable }}</span></p>
+                                <p><strong>Free Provider:</strong> <span class="badge {% if email_data.free_provider %}bg-info{% else %}bg-secondary{% endif %}">{{ email_data.free_provider }}</span></p>
+                                <p><strong>Deliverable:</strong> <span class="badge {% if email_data.deliverable %}bg-success{% else %}bg-danger{% endif %}">{{ email_data.deliverable }}</span></p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="osint-data-section">
+                                <h5 class="osint-data-title">Services</h5>
+                                <ul class="list-group list-group-flush">
+                                    {% for service, found in email_data.services.items() %}
+                                    <li class="list-group-item bg-dark d-flex justify-content-between align-items-center">
+                                        {{ service }}
+                                        <span class="badge {% if found %}bg-success{% else %}bg-secondary{% endif %}">{{ found }}</span>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% if email_data.breaches %}
+                            <div class="osint-data-section">
+                                <h5 class="osint-data-title">Breaches</h5>
+                                <div class="alert alert-danger">
+                                    <i class="bi bi-exclamation-triangle"></i> This email appears in {{ email_data.breaches|length }} data breaches.
+                                </div>
+                                <ul class="list-group list-group-flush">
+                                    {% for breach in email_data.breaches %}
+                                    <li class="list-group-item bg-dark">
+                                        <h6>{{ breach.name }}</h6>
+                                        <p class="small mb-1">{{ breach.date }}</p>
+                                        <p class="small mb-0">{{ breach.description }}</p>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                
+                {% elif osint_data.data_type == 'headers' %}
+                    {% set headers_data = data %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="osint-data-section">
+                                <h5 class="osint-data-title">URL Information</h5>
+                                <p><strong>URL:</strong> {{ headers_data.url }}</p>
+                                <div class="mt-4">
+                                    <h6>Security Analysis</h6>
+                                    <div class="progress mb-2" style="height: 20px;">
+                                        <div class="progress-bar 
+                                            {% if headers_data.security_analysis.score > 80 %}bg-success
+                                            {% elif headers_data.security_analysis.score > 60 %}bg-info
+                                            {% elif headers_data.security_analysis.score > 40 %}bg-warning
+                                            {% else %}bg-danger{% endif %}" 
+                                            role="progressbar" 
+                                            style="width: {{ headers_data.security_analysis.score }}%;" 
+                                            aria-valuenow="{{ headers_data.security_analysis.score }}" 
+                                            aria-valuemin="0" 
+                                            aria-valuemax="100">
+                                            {{ headers_data.security_analysis.score }}%
+                                        </div>
+                                    </div>
+                                    {% if headers_data.security_analysis.issues %}
+                                    <h6 class="mt-3">Security Issues</h6>
+                                    <ul class="list-group list-group-flush">
+                                        {% for issue in headers_data.security_analysis.issues %}
+                                        <li class="list-group-item bg-dark text-warning">
+                                            <i class="bi bi-exclamation-triangle"></i> {{ issue }}
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="osint-data-section">
+                                <h5 class="osint-data-title">HTTP Headers</h5>
+                                <ul class="list-group list-group-flush">
+                                    {% for header, value in headers_data.headers.items() %}
+                                    <li class="list-group-item bg-dark">
+                                        <strong>{{ header }}:</strong> <code>{{ value }}</code>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                
+                {% elif osint_data.data_type == 'ssl' %}
+                    {% set ssl_data = data %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="osint-data-section">
+                                <h5 class="osint-data-title">Certificate Information</h5>
+                                <p><strong>Domain:</strong> {{ ssl_data.domain }}</p>
+                                <p><strong>Valid From:</strong> {{ ssl_data.valid_from }}</p>
+                                <p><strong>Valid To:</strong> {{ ssl_data.valid_to }}</p>
+                                <p><strong>Days Remaining:</strong> {{ ssl_data.days_remaining }}</p>
+                                <p><strong>Serial Number:</strong> <code>{{ ssl_data.serial_number }}</code></p>
+                                <p><strong>Signature Algorithm:</strong> {{ ssl_data.signature_algorithm }}</p>
+                                <p><strong>Key Strength:</strong> {{ ssl_data.key_strength }} bits</p>
+                                <p><strong>Self-Signed:</strong> <span class="badge {% if ssl_data.self_signed %}bg-danger{% else %}bg-success{% endif %}">{{ ssl_data.self_signed }}</span></p>
+                            </div>
+                            <div class="osint-data-section">
+                                <h5 class="osint-data-title">Subject Alternative Names</h5>
+                                <ul class="list-group list-group-flush">
+                                    {% for name in ssl_data.subject_alternative_names %}
+                                    <li class="list-group-item bg-dark">{{ name }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="osint-data-section">
+                                <h5 class="osint-data-title">Subject</h5>
+                                <ul class="list-group list-group-flush">
+                                    {% for key, value in ssl_data.subject.items() %}
+                                    <li class="list-group-item bg-dark"><strong>{{ key }}:</strong> {{ value }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            <div class="osint-data-section">
+                                <h5 class="osint-data-title">Issuer</h5>
+                                <ul class="list-group list-group-flush">
+                                    {% for key, value in ssl_data.issuer.items() %}
+                                    <li class="list-group-item bg-dark"><strong>{{ key }}:</strong> {{ value }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            <div class="mt-4">
+                                <h6>Security Analysis</h6>
+                                <div class="progress mb-2" style="height: 20px;">
+                                    <div class="progress-bar 
+                                        {% if ssl_data.security_analysis.score > 80 %}bg-success
+                                        {% elif ssl_data.security_analysis.score > 60 %}bg-info
+                                        {% elif ssl_data.security_analysis.score > 40 %}bg-warning
+                                        {% else %}bg-danger{% endif %}" 
+                                        role="progressbar" 
+                                        style="width: {{ ssl_data.security_analysis.score }}%;" 
+                                        aria-valuenow="{{ ssl_data.security_analysis.score }}" 
+                                        aria-valuemin="0" 
+                                        aria-valuemax="100">
+                                        {{ ssl_data.security_analysis.score }}%
+                                    </div>
+                                </div>
+                                {% if ssl_data.security_analysis.issues %}
+                                <h6 class="mt-3">Security Issues</h6>
+                                <ul class="list-group list-group-flush">
+                                    {% for issue in ssl_data.security_analysis.issues %}
+                                    <li class="list-group-item bg-dark text-warning">
+                                        <i class="bi bi-exclamation-triangle"></i> {{ issue }}
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                
+                {% else %}
+                <div class="code-block">
+                    <pre><code>{{ data|pprint }}</code></pre>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Data Integrity Section -->
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card dashboard-card bg-dark">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-shield-lock"></i> Data Integrity</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">SHA-256 Hash for Data Integrity Verification:</p>
+                <div class="integrity-badge">{{ data_hash }}</div>
+                <p class="small text-muted mt-2">This hash can be used to verify that the data has not been tampered with.</p>
+                
+                <div class="mt-4">
+                    <button class="btn btn-outline-secondary toggle-json" data-target="raw-data">
+                        <i class="bi bi-code"></i> Show Raw Data
+                    </button>
+                    <a href="{{ url_for('osint_dashboard') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-left"></i> Back to OSINT Dashboard
+                    </a>
+                </div>
+                
+                <div id="raw-data" class="mt-3 d-none">
+                    <div class="code-block">
+                        <pre class="json-display mb-0"><code>{{ data|tojson }}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/osint.js') }}"></script>
+{% endblock %}

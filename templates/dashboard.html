@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - CyberSentry{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1><i class="bi bi-speedometer2"></i> Security Dashboard</h1>
+        <p class="text-muted">Welcome back, {{ current_user.username }}. Here's your security overview.</p>
+    </div>
+</div>
+
+<!-- Stats Overview -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="card dashboard-card bg-dark stat-card h-100">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="bi bi-bugs fs-1 text-primary"></i>
+                </div>
+                <h5 class="card-title">Honeypots</h5>
+                <h2 class="mb-0">{{ honeypot_count }}</h2>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card dashboard-card bg-dark stat-card h-100">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="bi bi-shield-exclamation fs-1 text-danger"></i>
+                </div>
+                <h5 class="card-title">Attacks Detected</h5>
+                <h2 class="mb-0">{{ attack_count }}</h2>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card dashboard-card bg-dark stat-card h-100">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="bi bi-link-45deg fs-1 text-warning"></i>
+                </div>
+                <h5 class="card-title">Phishing URLs</h5>
+                <h2 class="mb-0">{{ phishing_count }}</h2>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card dashboard-card bg-dark stat-card h-100">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="bi bi-camera-video fs-1 text-info"></i>
+                </div>
+                <h5 class="card-title">Deepfakes</h5>
+                <h2 class="mb-0">{{ deepfake_count }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Attack Trend Chart -->
+    <div class="col-md-8">
+        <div class="card dashboard-card bg-dark h-100">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-graph-up"></i> Attack Trends</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="attackChart"></canvas>
+                </div>
+                <div id="attack-data" class="d-none">{{ attack_data }}</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Alerts -->
+    <div class="col-md-4">
+        <div class="card dashboard-card bg-dark h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-bell"></i> Recent Alerts</h5>
+                <a href="{{ url_for('view_alerts') }}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    {% if recent_alerts %}
+                        {% for alert in recent_alerts %}
+                        <div class="list-group-item bg-dark {% if alert.is_read %}text-muted{% endif %}">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">
+                                    <span class="alert-indicator alert-{{ alert.severity }}"></span>
+                                    {{ alert.title }}
+                                </h6>
+                                <small>{{ alert.timestamp.strftime('%m/%d %H:%M') }}</small>
+                            </div>
+                            <p class="mb-1 small">{{ alert.description }}</p>
+                            <small class="text-muted">Source: {{ alert.source }}</small>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="list-group-item bg-dark text-center">
+                            <p class="mb-0 text-muted">No recent alerts</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Security Status -->
+    <div class="col-md-12">
+        <div class="card dashboard-card bg-dark">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-shield"></i> Security Status</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-4">
+                    <div class="col-md-3">
+                        <div class="d-flex flex-column align-items-center">
+                            <h6 class="text-muted">Honeypot Status</h6>
+                            {% if honeypot_count > 0 %}
+                                <span class="badge bg-success p-2 my-2">Active</span>
+                                <p class="text-center small">You have {{ honeypot_count }} active honeypot(s)</p>
+                            {% else %}
+                                <span class="badge bg-warning p-2 my-2">Not Deployed</span>
+                                <p class="text-center small">No honeypots deployed yet</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <div class="d-flex flex-column align-items-center">
+                            <h6 class="text-muted">OSINT Collection</h6>
+                            {% if osint_count > 0 %}
+                                <span class="badge bg-success p-2 my-2">Active</span>
+                                <p class="text-center small">{{ osint_count }} data points collected</p>
+                            {% else %}
+                                <span class="badge bg-warning p-2 my-2">Not Active</span>
+                                <p class="text-center small">No OSINT data collected yet</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <div class="d-flex flex-column align-items-center">
+                            <h6 class="text-muted">Phishing Detection</h6>
+                            {% if phishing_count > 0 %}
+                                <span class="badge bg-success p-2 my-2">Active</span>
+                                <p class="text-center small">{{ phishing_count }} URLs analyzed</p>
+                            {% else %}
+                                <span class="badge bg-warning p-2 my-2">Not Active</span>
+                                <p class="text-center small">No URLs analyzed yet</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <div class="d-flex flex-column align-items-center">
+                            <h6 class="text-muted">Deepfake Detection</h6>
+                            {% if deepfake_count > 0 %}
+                                <span class="badge bg-success p-2 my-2">Active</span>
+                                <p class="text-center small">{{ deepfake_count }} media files analyzed</p>
+                            {% else %}
+                                <span class="badge bg-warning p-2 my-2">Not Active</span>
+                                <p class="text-center small">No media analyzed yet</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="col-md-12">
+        <div class="card dashboard-card bg-dark">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-lightning"></i> Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <a href="{{ url_for('honeypot_dashboard') }}" class="btn btn-outline-primary d-block">
+                            <i class="bi bi-bugs"></i> Manage Honeypots
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ url_for('phishing_dashboard') }}" class="btn btn-outline-warning d-block">
+                            <i class="bi bi-link-45deg"></i> Analyze URL
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ url_for('osint_dashboard') }}" class="btn btn-outline-info d-block">
+                            <i class="bi bi-search"></i> Collect OSINT
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ url_for('threat_analysis') }}" class="btn btn-outline-danger d-block">
+                            <i class="bi bi-graph-up"></i> View Threat Analysis
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

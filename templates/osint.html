@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+
+{% block title %}OSINT Collection - CyberSentry{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1><i class="bi bi-search"></i> OSINT Collection</h1>
+        <p class="text-muted">Gather and analyze open-source intelligence data.</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- OSINT Collection Form -->
+    <div class="col-md-4">
+        <div class="card dashboard-card bg-dark">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-cloud-download"></i> Gather Data</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('gather_osint_data') }}" id="osint-form">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        <label for="target" class="form-label">Target</label>
+                        {{ form.target(class="form-control", placeholder="example.com") }}
+                        <div id="target-error" class="invalid-feedback d-none"></div>
+                        <div class="form-text">Enter a domain, IP address, email, or URL to gather intelligence.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="data_type" class="form-label">Data Type</label>
+                        {{ form.data_type(class="form-select") }}
+                    </div>
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- How It Works -->
+        <div class="card dashboard-card bg-dark mt-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-info-circle"></i> About OSINT</h5>
+            </div>
+            <div class="card-body">
+                <p>Open Source Intelligence (OSINT) gathers publicly available information from various sources:</p>
+                <ul>
+                    <li><strong>WHOIS:</strong> Domain registration information</li>
+                    <li><strong>DNS:</strong> Domain name system records</li>
+                    <li><strong>Geolocation:</strong> IP location information</li>
+                    <li><strong>Email:</strong> Email address validation and presence</li>
+                    <li><strong>Headers:</strong> HTTP header security analysis</li>
+                    <li><strong>SSL:</strong> Certificate information and validation</li>
+                </ul>
+                <p class="mb-0 small text-muted">All data is verified with SHA-256 integrity checks to ensure authenticity.</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Collections -->
+    <div class="col-md-8">
+        <div class="card dashboard-card bg-dark">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-clock-history"></i> Recent Collections</h5>
+            </div>
+            <div class="card-body p-0">
+                {% if recent_data %}
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Target</th>
+                                <th>Type</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for data in recent_data %}
+                            <tr>
+                                <td>
+                                    <span class="d-inline-block text-truncate" style="max-width: 250px;" title="{{ data.target }}">
+                                        {{ data.target }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if data.data_type == 'whois' %}
+                                    <span class="badge bg-primary">WHOIS</span>
+                                    {% elif data.data_type == 'dns' %}
+                                    <span class="badge bg-success">DNS</span>
+                                    {% elif data.data_type == 'geo' %}
+                                    <span class="badge bg-info">GEO</span>
+                                    {% elif data.data_type == 'email' %}
+                                    <span class="badge bg-warning">EMAIL</span>
+                                    {% elif data.data_type == 'headers' %}
+                                    <span class="badge bg-danger">HEADERS</span>
+                                    {% elif data.data_type == 'ssl' %}
+                                    <span class="badge bg-secondary">SSL</span>
+                                    {% endif %}
+                                </td>
+                                <td><small>{{ data.created_at.strftime('%Y-%m-%d %H:%M') }}</small></td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{{ url_for('osint_details', osint_id=data.id) }}" class="btn btn-sm btn-outline-info">
+                                            <i class="bi bi-eye"></i> View
+                                        </a>
+                                        <button class="btn btn-sm btn-outline-secondary toggle-json" data-target="json-{{ data.id }}">
+                                            <i class="bi bi-code"></i> Raw
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="p-0">
+                                    <div id="json-{{ data.id }}" class="d-none">
+                                        <div class="p-3">
+                                            <h6>Raw Data</h6>
+                                            <div class="code-block">
+                                                <pre class="json-display mb-0"><code>{{ data.get_data()|tojson }}</code></pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center p-4">
+                    <p class="mb-0 text-muted">No OSINT data has been collected yet.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Statistics -->
+        {% if recent_data %}
+        <div class="card dashboard-card bg-dark mt-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-bar-chart"></i> Collection Statistics</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    {% set data_types = {} %}
+                    {% for data in recent_data %}
+                        {% if data.data_type in data_types %}
+                            {% set _ = data_types.update({data.data_type: data_types[data.data_type] + 1}) %}
+                        {% else %}
+                            {% set _ = data_types.update({data.data_type: 1}) %}
+                        {% endif %}
+                    {% endfor %}
+                    <canvas id="osintTypeChart" data-types="{{ data_types|tojson }}"></canvas>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/osint.js') }}"></script>
+{% endblock %}

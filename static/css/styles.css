@@ -1,0 +1,147 @@
+/* Additional custom styles beyond Bootstrap */
+
+/* Dashboard stat cards */
+.stat-card {
+  transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Alert indicators */
+.alert-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 5px;
+}
+
+.alert-high {
+  background-color: var(--bs-danger);
+}
+
+.alert-medium {
+  background-color: var(--bs-warning);
+}
+
+.alert-low {
+  background-color: var(--bs-info);
+}
+
+/* Honeypot status indicators */
+.honeypot-active {
+  color: var(--bs-success);
+}
+
+.honeypot-inactive {
+  color: var(--bs-secondary);
+}
+
+/* Threat analysis risk levels */
+.risk-critical {
+  color: var(--bs-danger);
+  font-weight: bold;
+}
+
+.risk-high {
+  color: var(--bs-danger);
+}
+
+.risk-medium {
+  color: var(--bs-warning);
+}
+
+.risk-low {
+  color: var(--bs-info);
+}
+
+.risk-minimal {
+  color: var(--bs-success);
+}
+
+/* Dashboard cards */
+.dashboard-card {
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Code displaying */
+.code-block {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 0.25rem;
+  padding: 1rem;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* Feature tags */
+.feature-tag {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  margin: 0.25rem;
+  border-radius: 1rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  font-size: 0.8rem;
+}
+
+/* Honeypot attack timeline */
+.attack-timeline {
+  position: relative;
+  margin-left: 20px;
+}
+
+.attack-timeline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 2px;
+  background-color: var(--bs-secondary);
+}
+
+.attack-item {
+  padding-left: 20px;
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.attack-item::before {
+  content: '';
+  position: absolute;
+  left: -5px;
+  top: 5px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: var(--bs-primary);
+}
+
+/* OSINT data display */
+.osint-data-section {
+  margin-bottom: 1.5rem;
+}
+
+.osint-data-title {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Data integrity badge */
+.integrity-badge {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+  font-family: monospace;
+  word-break: break-all;
+}
+
+/* Make charts responsive */
+.chart-container {
+  position: relative;
+  width: 100%;
+  height: 300px;
+}

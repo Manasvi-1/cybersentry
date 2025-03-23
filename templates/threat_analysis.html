@@ -1,0 +1,329 @@
+{% extends 'base.html' %}
+
+{% block title %}Threat Analysis - CyberSentry{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1><i class="bi bi-graph-up"></i> Threat Analysis</h1>
+        <p class="text-muted">Comprehensive analysis of security threats and vulnerabilities.</p>
+    </div>
+</div>
+
+{% if report %}
+<div class="row g-4">
+    <!-- Summary Card -->
+    <div class="col-md-12">
+        <div class="card dashboard-card bg-dark">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-file-earmark-text"></i> Threat Summary</h5>
+                <span class="badge bg-secondary">{{ report.summary.timestamp }}</span>
+            </div>
+            <div class="card-body">
+                <div class="row g-4 align-items-center">
+                    <div class="col-md-4 text-center">
+                        <div class="p-4">
+                            <h2 class="mb-3">Risk Level</h2>
+                            <div class="d-inline-block p-4 rounded-circle 
+                                {% if report.summary.risk_level == 'Critical' %}bg-danger
+                                {% elif report.summary.risk_level == 'High' %}bg-danger
+                                {% elif report.summary.risk_level == 'Medium' %}bg-warning
+                                {% elif report.summary.risk_level == 'Low' %}bg-info
+                                {% else %}bg-success{% endif %}"
+                                style="width: 150px; height: 150px;">
+                                <h1 class="display-5 text-white my-0">
+                                    {% if report.summary.risk_level == 'Critical' %}!
+                                    {% elif report.summary.risk_level == 'High' %}!
+                                    {% elif report.summary.risk_level == 'Medium' %}!
+                                    {% elif report.summary.risk_level == 'Low' %}i
+                                    {% else %}✓{% endif %}
+                                </h1>
+                                <h5 class="text-white mb-0">{{ report.summary.risk_level }}</h5>
+                            </div>
+                            <div class="mt-3">
+                                <h4>Score: {{ report.summary.risk_score }}</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="card bg-dark h-100 text-center p-3">
+                                    <h5 class="mb-3">
+                                        <i class="bi bi-shield-exclamation text-danger"></i> Attacks
+                                    </h5>
+                                    <h2>{{ report.summary.total_attacks }}</h2>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-dark h-100 text-center p-3">
+                                    <h5 class="mb-3">
+                                        <i class="bi bi-link-45deg text-warning"></i> Phishing
+                                    </h5>
+                                    <h2>{{ report.summary.total_phishing }}</h2>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-dark h-100 text-center p-3">
+                                    <h5 class="mb-3">
+                                        <i class="bi bi-camera-video text-info"></i> Deepfakes
+                                    </h5>
+                                    <h2>{{ report.summary.total_deepfakes }}</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <h5>Key Observations</h5>
+                            <ul>
+                                {% if report.attack_analysis %}
+                                <li>Most common attack type: <strong>{{ report.attack_analysis.most_common_type }}</strong></li>
+                                {% if report.attack_analysis.patterns_detected %}
+                                <li>Attack patterns detected: <span class="text-warning">Yes</span></li>
+                                {% endif %}
+                                {% if report.attack_analysis.attack_rate > 0 %}
+                                <li>Average attack rate: <strong>{{ report.attack_analysis.attack_rate }} per day</strong></li>
+                                {% endif %}
+                                {% endif %}
+                                
+                                {% if report.phishing_analysis %}
+                                {% if report.phishing_analysis.high_confidence_detections > 0 %}
+                                <li>High confidence phishing detections: <strong class="text-danger">{{ report.phishing_analysis.high_confidence_detections }}</strong></li>
+                                {% endif %}
+                                {% endif %}
+                                
+                                {% if report.deepfake_analysis %}
+                                {% if report.deepfake_analysis.high_confidence_detections > 0 %}
+                                <li>High confidence deepfake detections: <strong class="text-danger">{{ report.deepfake_analysis.high_confidence_detections }}</strong></li>
+                                {% endif %}
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Attack Analysis -->
+    {% if report.attack_analysis %}
+    <div class="col-md-6">
+        <div class="card dashboard-card bg-dark">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-shield-exclamation"></i> Attack Analysis</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <h6>Attack Types</h6>
+                    <div class="mb-3">
+                        {% for attack_type, count in report.attack_analysis.attack_types.items() %}
+                        <span class="feature-tag">{{ attack_type }}: {{ count }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <h6>Most Active Sources</h6>
+                    <ul class="list-group list-group-flush">
+                        {% for source in report.attack_analysis.most_active_sources %}
+                        <li class="list-group-item bg-dark d-flex justify-content-between align-items-center">
+                            <code>{{ source }}</code>
+                            <span class="badge bg-danger rounded-pill">
+                                {% set source_count = report.attack_analysis.attack_types|sum %}
+                                {{ source_count }}
+                            </span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                
+                {% if report.attack_analysis.attack_spikes %}
+                <div class="mb-4">
+                    <h6>Attack Spikes Detected</h6>
+                    <ul class="list-group list-group-flush">
+                        {% for day in report.attack_analysis.attack_spikes %}
+                        <li class="list-group-item bg-dark">{{ day }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Phishing & Deepfake Analysis -->
+    <div class="col-md-6">
+        <div class="card dashboard-card bg-dark">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Other Threat Vectors</h5>
+            </div>
+            <div class="card-body">
+                {% if report.phishing_analysis %}
+                <div class="mb-4">
+                    <h6>Phishing Analysis</h6>
+                    <p>Average confidence score: <strong>{{ report.phishing_analysis.average_confidence }}</strong></p>
+                    
+                    {% if report.phishing_analysis.most_common_domains %}
+                    <div class="mb-3">
+                        <h6 class="small text-muted">Targeted Domains</h6>
+                        {% for domain in report.phishing_analysis.most_common_domains %}
+                        <span class="feature-tag">{{ domain }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+                
+                {% if report.deepfake_analysis %}
+                <div class="mb-4">
+                    <h6>Deepfake Analysis</h6>
+                    <p>Average confidence score: <strong>{{ report.deepfake_analysis.average_confidence }}</strong></p>
+                    
+                    {% if report.deepfake_analysis.media_types %}
+                    <div class="mb-3">
+                        <h6 class="small text-muted">Media Types</h6>
+                        {% for media_type, count in report.deepfake_analysis.media_types.items() %}
+                        <span class="feature-tag">{{ media_type }}: {{ count }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Indicators of Compromise -->
+    <div class="col-md-6">
+        <div class="card dashboard-card bg-dark">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-exclamation-diamond"></i> Indicators of Compromise</h5>
+            </div>
+            <div class="card-body p-0">
+                {% if report.indicators_of_compromise %}
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Value</th>
+                                <th>Confidence</th>
+                                <th>Source</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ioc in report.indicators_of_compromise %}
+                            <tr>
+                                <td>
+                                    {% if ioc.type == 'ip_address' %}
+                                    <i class="bi bi-hdd-network text-danger"></i>
+                                    {% elif ioc.type == 'domain' %}
+                                    <i class="bi bi-globe text-warning"></i>
+                                    {% elif ioc.type == 'hash' %}
+                                    <i class="bi bi-hash text-info"></i>
+                                    {% else %}
+                                    <i class="bi bi-question-circle text-secondary"></i>
+                                    {% endif %}
+                                    {{ ioc.type }}
+                                </td>
+                                <td><code>{{ ioc.value }}</code></td>
+                                <td>
+                                    {% if ioc.confidence == 'high' %}
+                                    <span class="badge bg-danger">High</span>
+                                    {% elif ioc.confidence == 'medium' %}
+                                    <span class="badge bg-warning">Medium</span>
+                                    {% else %}
+                                    <span class="badge bg-info">Low</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ ioc.source }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center p-4">
+                    <p class="mb-0 text-muted">No indicators of compromise identified.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recommendations -->
+    <div class="col-md-6">
+        <div class="card dashboard-card bg-dark">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-shield-check"></i> Security Recommendations</h5>
+            </div>
+            <div class="card-body p-0">
+                {% if report.recommendations %}
+                <div class="list-group list-group-flush">
+                    {% for rec in report.recommendations %}
+                    <div class="list-group-item bg-dark">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">
+                                {% if rec.priority == 'high' %}
+                                <span class="badge bg-danger me-2">High</span>
+                                {% elif rec.priority == 'medium' %}
+                                <span class="badge bg-warning me-2">Medium</span>
+                                {% else %}
+                                <span class="badge bg-info me-2">Low</span>
+                                {% endif %}
+                                {{ rec.title }}
+                            </h6>
+                        </div>
+                        <p class="mb-1">{{ rec.description }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center p-4">
+                    <p class="mb-0 text-muted">No recommendations available.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Data Integrity -->
+    <div class="col-md-12">
+        <div class="card dashboard-card bg-dark">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-shield-lock"></i> Report Integrity</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">SHA-256 Hash for Data Integrity Verification:</p>
+                <div class="integrity-badge">{{ report.data_integrity }}</div>
+                <p class="small text-muted mt-2">This hash can be used to verify that the report has not been tampered with.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card dashboard-card bg-dark">
+            <div class="card-body text-center p-5">
+                <i class="bi bi-graph-up fs-1 text-muted"></i>
+                <h3 class="mt-3">No Threat Analysis Available</h3>
+                <p class="text-muted">Deploy honeypots, analyze URLs, or collect OSINT data to generate a threat analysis report.</p>
+                <div class="mt-4">
+                    <a href="{{ url_for('honeypot_dashboard') }}" class="btn btn-outline-primary me-2">
+                        <i class="bi bi-bugs"></i> Deploy Honeypot
+                    </a>
+                    <a href="{{ url_for('phishing_dashboard') }}" class="btn btn-outline-warning me-2">
+                        <i class="bi bi-link-45deg"></i> Analyze URL
+                    </a>
+                    <a href="{{ url_for('osint_dashboard') }}" class="btn btn-outline-info">
+                        <i class="bi bi-search"></i> Collect OSINT
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
